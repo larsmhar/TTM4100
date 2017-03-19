@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+	<meta charset="utf-8">
+	<title>Untextured Raycaster Demo from cacodaemon.de</title>
+	<style type="text/css">
+		* {
+			padding: 0;
+			margin: 0;
+			image-rendering:optimizeSpeed;              /* Legal fallback                 */
+			image-rendering:-moz-crisp-edges;           /* Firefox                        */
+			image-rendering:-o-crisp-edges;             /* Opera                          */
+			image-rendering:-webkit-optimize-contrast;  /* Chrome (and eventually Safari) */
+			image-rendering:crisp-edges;                /* CSS3 Proposed                  */
+			image-rendering: optimize-contrast;         /* Possible future browsers.      */
+			-ms-interpolation-mode:bicubic;             /* IE8+                           */
+		}
+		#GameCanvas {
+			transform-origin: 0% 0%;
+			-ms-transform-origin: 0% 0%;
+			-webkit-transform-origin: 0% 0%;
+			-o-transform-origin: 0% 0%;
+			-moz-transform-origin: 0% 0%;
+			transform: scale(3, 3);
+			-ms-transform: scale(3, 3);
+			-webkit-transform: scale(3, 3);
+			-o-transform: scale(3, 3);
+			-moz-transform: scale(3, 3);
+		}
+	</style>
+	<script type="text/javascript" src="GameManager.js"></script>
+	<script type="text/javascript" src="GameObject.js"></script>
+	<script type="text/javascript" src="Keyboard.js"></script>
+	<script type="text/javascript" src="Raycaster.js"></script>
+  </head>
+  <body>
+		<canvas id="GameCanvas" />
+  </body>
+	<script>
+		var scale = 3
+		var gameCanvas = document.getElementById("GameCanvas");
+		gameCanvas.width = window.innerWidth / scale;
+		gameCanvas.height = window.innerHeight / scale;
+		var gameManager = new GameManager();
+		gameManager.init(gameCanvas);
+		gameManager.addGameObject(new Raycaster());
+	</script>
+</html>
