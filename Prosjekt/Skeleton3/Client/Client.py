@@ -17,7 +17,6 @@ class Client:
         self.host = host
         self.server_port = server_port
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.messageReceiver = MessageReceiver(self, self.connection)
         self.messageParser = MessageParser()
 
         self.run()
@@ -29,27 +28,29 @@ class Client:
 
         messageReceiver.start()
 
-        print("her da")
         # Initiate the connection to the server
 
-        #msg, request = "", ""
+        request = ""
 
+        while True:
+            msg = input("Message here pls: ")
+            request = msg.split(" ")[0]
+            if request == "help":
+                self.send_help()
+            elif request == "logout":
+                self.send_logout()
+                break
+            elif request == "login":
+                username = msg.split(" ")[1]
+                self.send_login(username)
+            elif request == "names":
+                self.send_names()
+            elif request == "msg":
+                self.send_messages()
+            else:
+                self.send_msg(msg)
 
-        #msgReciever = MessageReceiver(self, self.connection)
-        print("dette problemet?")
-        while 1 != "quit":
-            request, msg = input("Message here pls: ").split(" ")
-            #print("{}\t{}".format(request, msg))
-            send_msg = {"request": "", "content": ""}
-            #print(msg)
-            send_msg["content"] = msg
-            send_msg["request"] = request
-            send_msg = json.dumps(send_msg)
-            send_msg = json.loads(send_msg)
-            #print(type(send_msg), send_msg)
-            #self.send_payload(msg)
-            self.send_payload(json.dumps(send_msg))
-        #self.disconnect()
+        self.disconnect()
 
 
     def disconnect(self):
@@ -62,18 +63,50 @@ class Client:
     def receive_message(self, message):
         # TODO: Handle incoming message
         print("{}\n{}".format(type(message), message))
-        #messageParser = MessageParser()
         response = self.messageParser.parse(message)
         print(response)
         pass
 
     def send_payload(self, data):
         # TODO: Handle sending of a payload
-
         self.connection.send(bytes(data, "UTF-8"))
         pass
         
     # More methods may be needed!
+
+    def send_login(self, username):
+        request = self.make_request("login", username)
+        self.send_payload(request)
+
+
+    def send_logout(self):
+        request = self.make_request("logout")
+        self.send_payload(request)
+
+
+    def send_msg(self, msg):
+        request = self.make_request("msg", msg)
+        self.send_payload(request)
+
+
+    def send_help(self):
+        request = self.make_request("help")
+        self.send_payload(request)
+
+
+    def send_names(self):
+        request = self.make_request("names")
+        self.send_payload(request)
+
+    def send_messages(self):
+        request = self.make_request("msg")
+        self.send_payload(request)
+
+    def make_request(self, request, content=""):
+        return json.dumps({"request": request, "content": content})
+
+
+
 
 
 if __name__ == '__main__':
