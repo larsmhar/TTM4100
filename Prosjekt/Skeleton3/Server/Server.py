@@ -10,7 +10,7 @@ must be written here (e.g. a dictionary for connected clients)
 """
 
 connected_users = {}
-message_history = []
+message_history = {}
 
 class ClientHandler(socketserver.BaseRequestHandler):
     """
@@ -39,43 +39,40 @@ class ClientHandler(socketserver.BaseRequestHandler):
 
             payload = received_string.decode("UTF-8")
             print(payload)
-            #print(type(payload))
             payload = json.loads(payload)
-            #print(type(payload))
 
+            #TODO LEGG TIL Å SENDE MESSAGE TIL ALLE TILKNYTTET
 
             deliverables["sender"] = "server"
-            print(str(connected_users))
-            print(connected_users.keys())
-            print(connected_users.values())
-            #for key, value in connected_users:
-            #    print("{} {} {}".format(payload["request"], key, value))
-            if (payload["request"] in connected_users):
+            print(message_history)
+            print(connected_users)
+            if (payload["request"] in connected_users and payload["request"] == "login"):
                     deliverables["response"] = "error"
                     deliverables["content"] = "Failure, duplicate username"
             elif payload["request"] == "login" and self.username == "" and self.accepted_username(payload["content"]):
-            # and payload["content"] not in connected_users):
                 self.username = payload['content']
                 print(payload["request"] + " " + self.username)
-                connected_users[self.username] = self.connection
+                connected_users[self.username] = self
                 deliverables["response"] = "info"
                 deliverables["content"] = "Success"
             elif payload["request"] == "help":
-                deliverables["response"] = "info: login <username>\t"
+                deliverables["content"] = "Commands: login <username>, help, names, logout, msg <message>"
             elif self.username == "":
                 payload['response'] = "error"
-            #elif payload["request"] == "msg":
-            #    deliverables["response"] = "info"
-            #    deliverables["content"] = "Success"
-            #    message_history.append(payload["request"])
-            elif  payload["request"] == "msg":
+            elif  payload["request"] == "messages":
                 deliverables["content"] = message_history
 
-            if payload["request"] == "quit":
+            if payload["request"] == "logout":
                 connected_users.pop(self.username)
+                self.username = ""
                 break
             else:
-                self.connection.send(bytes(json.dumps(deliverables), "UTF-8"))
+                message = payload["content"]
+                #TODO CREATE RESPONSE
+                deliverables["sender"] = self.username
+                deliverables["response"] = "message"
+                deliverables["content"] = message
+                self.broadcast_response(deliverables)
 
         self.connection.close()
 
@@ -98,16 +95,21 @@ class ClientHandler(socketserver.BaseRequestHandler):
             print("Detter funker også!")
         self.connection.send(bytes(response, "UTF-8"))
         """
-    def send_message(self):
-        self.connection.send(bytes("nei"))
+    def send_message(self, message):
+        self.connection.send(bytes(message, "UTF-8"))
 
     def accepted_username(self, username):
         # Finn ut r og f re
-        if re.fullmatch("[a-zA-Z0-9]*", username) and (username not in connected_users.keys()):
-            print(username)
+        if re.fullmatch("[a-zA-Z0-9]{1,16}", username) and (username not in connected_users.keys()):
             return True
         else:
             return False
+
+    def broadcast_response(self, response):
+        for connection in connected_users.items():
+            json_response = json.dumps(response)
+            print(connection, json_response)
+            connection[1].send_message(json_response)
 
 
 
