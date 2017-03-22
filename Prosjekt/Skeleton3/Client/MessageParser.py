@@ -32,7 +32,15 @@ class MessageParser():
 
 
     def parse_history(self, payload):
-        return("{} History\t: {}".format(payload['timestamp'], payload['content']))
+        #return str(type(payload)) + " " + payload["content"][0]
+        outstr = ""
+        for message in payload["content"]:
+            message = json.loads(message)
+            #message = json.loads(message)
+            #return json.loads(message)["timestamp"], json.loads(message)["sender"], json.loads(message)["content"]
+            outstr += "{} {}\t: {}\n".format((message)["timestamp"], (message)["sender"], (message)["content"])
+        return outstr
+        #return("{} History\t: {}".format(payload['timestamp'], payload['content']))
 
 
     def parse_help(self, payload):
