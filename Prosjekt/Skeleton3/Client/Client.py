@@ -28,8 +28,6 @@ class Client:
 
         request = ""
 
-
-
         print(">>", end="")
         while True:
             msg = input("")
@@ -51,6 +49,7 @@ class Client:
 
         self.disconnect()
 
+    '''
     def get_input(self):
         while True:
             msg = input("\n>>")
@@ -71,6 +70,7 @@ class Client:
                 print("Not a valid command")
 
         self.disconnect()
+    '''
 
     def disconnect(self):
         # TODO: Handle disconnection
@@ -111,15 +111,15 @@ class Client:
         request = self.make_request("help")
         self.send_payload(request)
 
-
     def send_names(self):
         request = self.make_request("names")
         self.send_payload(request)
 
+    '''
     def send_messages(self):
         request = self.make_request("messages")
         self.send_payload(request)
-
+    '''
     def make_request(self, request, content=""):
         return json.dumps({"request": request, "content": content})
 
@@ -131,3 +131,6 @@ if __name__ == '__main__':
     No alterations are necessary
     """
     client = Client('localhost', 9998)
+
+    #client = Client('10.22.70.210', 9998)
+

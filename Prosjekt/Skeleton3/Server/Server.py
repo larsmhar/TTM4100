@@ -64,7 +64,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
                 deliverables["content"] = "Login success"
 
             elif payload["request"] == "help":
-                deliverables["response"] = "help"
+                deliverables["response"] = "info"
                 deliverables["content"] = "Commands: login <username>, help, names, logout, msg <message>"
 
             elif self.username == "":
@@ -73,11 +73,20 @@ class ClientHandler(socketserver.BaseRequestHandler):
             elif payload["request"] == "msg":
                 deliverables["response"] = "message"
 
+            elif payload["request"] == "names":
+                names = ""
+                for connected in connected_users.keys():
+                    names += connected + ", "
+                deliverables["content"] = names
+                deliverables["response"] = "info"
+
 
             if payload["request"] == "logout":
                 print(connected_users)
-                connected_users.pop(self.username)
-                self.username = ""
+                if self.username != "":
+                    connected_users.pop(self.username)
+
+                    self.username = ""
                 break
 
             elif deliverables["response"] == "message":
@@ -116,7 +125,8 @@ class ClientHandler(socketserver.BaseRequestHandler):
         print(type(message), message)
         if json.loads(message)["response"] == "message":
             if json.dumps(message, "UTF-8") not in message_history:
-                message_history.append(json.dumps(message, "UTF-8"))
+                message_history.append(message)
+                #message_history.append(json.dumps(message, "UTF-8"))
             #if len(message_history) > 0:
                 #print(type(message_history), message_history)
                 #print(type(json.loads(message_history[0])), (json.loads(message_history[0])))
@@ -133,12 +143,12 @@ class ClientHandler(socketserver.BaseRequestHandler):
             return False
 
     def broadcast_response(self, response):
-        for connection in connected_users.items():
+        for connected in connected_users.items():
             json_response = json.dumps(response)
             #print(connection, json_response)
             if json.dumps(response, "UTF-8") not in message_history:
                 message_history.append(json.dumps(response, "UTD-8"))
-            connection[1].connection.send(bytes(json_response, encoding="UTF-8"))
+            connected[1].connection.send(bytes(json_response, encoding="UTF-8"))
 
 
 

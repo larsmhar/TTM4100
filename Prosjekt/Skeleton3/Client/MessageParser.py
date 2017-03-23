@@ -39,6 +39,7 @@ class MessageParser():
             #message = json.loads(message)
             #return json.loads(message)["timestamp"], json.loads(message)["sender"], json.loads(message)["content"]
             outstr += "{} {}\t: {}\n".format((message)["timestamp"], (message)["sender"], (message)["content"])
+        outstr += "-----------------------------------"
         return outstr
         #return("{} History\t: {}".format(payload['timestamp'], payload['content']))
 
